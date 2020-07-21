@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:v="urn:schemas-microsoft-com:vml"
+      xmlns:xlink="http://www.w3.org/1999/xlink">
+  <HEAD>
+    <meta charset="UTF-8">
+    <TITLE>Maze Folder</TITLE>
+    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.14.1/dojo/dojo.js"></script>
+    <SCRIPT TYPE="text/javascript" src="./dojo.js"></SCRIPT>
+       <!-- djConfig="gfxRenderer:'svg,silverlight,canvas,vml'" -->
+    <SCRIPT TYPE="text/javascript" src="./maze.js"></SCRIPT>
+    <STYLE TYPE="text/css">
+      #warnings { background: red; color: yellow; padding: 1ex; display: none; }
+      @media print {
+        .noprint { display: none; }
+        #cp { width: 100%; }
+      }
+      .setting { display: inline-block; margin: 0ex 2em; vertical-align: top; }
+      TD { text-align: center; }
+      v\:rect, v\:roundrect, v\:line, v\:polyline, v\:curve, v\:arc, v\:oval, v\:image, v\:shape, v\:group, v\:skew, v\:stroke, v\:fill { behavior:url(#default#VML); display:inline-block }
+    </STYLE>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-19951079-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+  </HEAD>
+  <BODY>
+    <H1>Maze Folder</H1>
+    <H2><A HREF="http://erikdemaine.org/">Erik Demaine</A>, <A HREF="http://martindemaine.org">Martin Demaine</A>, <A HREF="http://scripts.mit.edu/~jasonku/">Jason Ku</A></H2>
+
+    <P ID="warnings">
+    </P>
+
+    <DIV CLASS="setting noprint">
+      <SPAN ID="nx">6</SPAN> &times;
+      <SPAN ID="ny">5</SPAN> input grid
+    </DIV>
+    <DIV CLASS="setting noprint">
+      <BUTTON onclick="return clear_maze ()">Clear maze</BUTTON>
+    </DIV>
+    <DIV CLASS="setting noprint">
+      <BUTTON onclick="return random_maze ()">Random maze</BUTTON>
+    </DIV>
+    <DIV CLASS="setting noprint">
+      <TEXTAREA NAME="text" ID="text" ROWS=2>text</TEXTAREA>
+    </DIV>
+    <DIV CLASS="setting noprint">
+      <SPAN ID="textlink"></SPAN>
+    </DIV>
+
+
+    <!--
+    <TABLE id="inputs" WIDTH="100%">
+      <TR><TD>
+      <LABEL FOR="nx">Grid width:</LABEL>
+      <INPUT TYPE="text" NAME="nx" ID="nx" VALUE="6" SIZE="3"
+             dojoType="dijit.form.NumberTextBox"
+             constraints="{min:1, max:999, places:0}" required="true"
+             invalidMessage="invalid integer 1..999" />
+      <TD>
+      <LABEL FOR="ny">Grid height:</LABEL>
+      <INPUT TYPE="text" NAME="ny" ID="ny" VALUE="5" SIZE="3"
+             dojoType="dijit.form.NumberTextBox"
+             constraints="{min:1, max:999, places:0}" required="true"
+             invalidMessage="invalid integer 1..999" />
+    </TABLE>
+    -->
+
+    <P>
+
+    <TABLE>
+      <TR>
+        <TD>
+          <DIV id="maze"><!-- onclick="return toggle_edge (event);">-->
+          </DIV>
+        </TD>
+        <TD>
+          <DIV id="d3">
+          </DIV>
+          <DIV id="front3" style="display: none;">
+          </DIV>
+        </TD>
+      </TR>
+      <TR CLASS="noprint">
+        <TD>
+          Resize maze:
+          <BUTTON onclick="return change_ny (-1, event.shiftKey);">&uarr;</BUTTON>
+          <BUTTON onclick="return change_ny (+1, event.shiftKey);">&darr;</BUTTON>
+          <BUTTON onclick="return change_nx (-1, event.shiftKey);">&larr;</BUTTON>
+          <BUTTON onclick="return change_nx (+1, event.shiftKey);">&rarr;</BUTTON>
+        </TD>
+        <TD>
+          <BUTTON onclick="return d3reset ();">Reset view</BUTTON>
+          <BUTTON onclick="return d3change (-5,0);">&larr;</BUTTON>
+          <BUTTON onclick="return d3change (+5,0);">&rarr;</BUTTON>
+          <BUTTON onclick="return d3change (0,-5);">&uarr;</BUTTON>
+          <BUTTON onclick="return d3change (0,+5);">&darr;</BUTTON>
+          <BR>
+          <INPUT TYPE="checkbox" NAME="front" ID="front"/>
+          <LABEL FOR="lock0">Front view</LABEL>
+        </TD>
+      </TR>
+      <TR>
+        <TD COLSPAN=2>
+          <DIV id="cp">
+          </DIV>
+        </TD>
+      </TR>
+    </TABLE>
+
+    <P CLASS="setting noprint">
+    <B>Options:</B>
+    <DIV CLASS="setting noprint">
+      <INPUT TYPE="checkbox" NAME="lock0" ID="lock0"/>
+      <LABEL FOR="lock0">Lock degree-0 corners</LABEL>
+    </DIV>
+    <DIV CLASS="setting noprint">
+      <LABEL FOR="channel">Ratio of channel width over wall height:</LABEL>
+      <INPUT TYPE="text" NAME="channel" ID="channel" SIZE="4" VALUE="1"/>
+      <BUTTON onclick="return add_to_channel (+1)">+</BUTTON>
+      <BUTTON onclick="return add_to_channel (-1)">&minus;</BUTTON>
+    </DIV>
+
+    <P CLASS="noprint">
+    Implementation of an <A HREF="/papers/MazeFolding_Origami5/">algorithm
+    for folding any orthogonal graph/maze</A> together with a
+    <A HREF="/papers/MazeAlphabet_G4G9/">maze puzzle font</A>.
+    &bull;
+    Edit your maze in the top-left, or hit "Random maze", or enter text above.
+    Crease pattern at the bottom folds into the 3D structure in the top-right.
+    Printing this page will just print the crease pattern.
+    &bull;
+    Red = mountain, blue = valley (for printed side up),
+    thin/light = 90&deg; fold, thick/dark = 180&deg; fold.
+
+    <P CLASS="noprint">
+    Check out <A HREF="http://erikdemaine.org/fonts/">other mathematical and
+    puzzle fonts</A>. &bull; Feedback or not working?
+    <A HREF="mailto:edemaine+fonts@mit.edu">Email Erik</A>.
+  </BODY>
+</HTML>
