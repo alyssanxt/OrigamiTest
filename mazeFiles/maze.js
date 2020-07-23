@@ -23,12 +23,12 @@ dojo.require ('dojox.gfx3d');
 //dojo.require("dojo.parser");
 //dojo.addOnLoad (function () { dojo.parser.parse (); });
 
-var nx = 6, ny = 5, oldnx, oldny;
+var nx = 6, ny = 5, oldnx, oldny; //DEFAULT SIZE OF THE GRIDS
 var channel = 1, oldchannel;
-var maze_is_text = false;
+var maze_is_text = false; // boolean for various helper functions down the road
 var maze, mazeg, mazel, cp, cpg, d3, d3v, d3u, d3on = true, front3, front3g, fron3l;
 
-dojo.addOnLoad (function () {
+dojo.addOnLoad (function () { // present loads upon rendering the webpage
   if (dojox.gfx.renderer == "vml") {
     dojo.byId('warnings').innerHTML = '<i>You are using Internet Explorer, ' +
       'which currently will render this web application rather poorly under ' +
@@ -47,17 +47,18 @@ dojo.addOnLoad (function () {
     d3on = false;
   }
 
-  maze = dojox.gfx.createSurface (dojo.byId ('maze'), 500, 400);
-  cp = dojox.gfx.createSurface (dojo.byId ('cp'), 800, 600);
+  // surfaces refer to the 3 diff "viewports" we see
+  maze = dojox.gfx.createSurface (dojo.byId ('maze'), 1000, 500);
+  cp = dojox.gfx.createSurface (dojo.byId ('cp'), 1000, 500);
 
-  if (d3on) {
-    d3 = dojox.gfx.createSurface (dojo.byId ('d3'), 400, 300);
+  if (d3on) { // ???
+    d3 = dojox.gfx.createSurface (dojo.byId ('d3'), 1000, 500);
     d3v = d3.createViewport ();
     d3v.setLights([
       {direction: {x: 0, y: 0, z: -10}, color: "white"}
     ], {color: "white", intensity: 2}, "white");
   }
-  front3 = dojox.gfx.createSurface (dojo.byId ('front3'), 400, 300);
+  front3 = dojox.gfx.createSurface (dojo.byId ('front3'), 1000, 500);
 
   update_nx_ny ();
 
@@ -120,7 +121,9 @@ function coord (x, y) {
   return [x * scale + xoff, y * scale + yoff];
 }
 
-window.thin = 0.09;
+
+//constants for GRID window's thickness:
+window.thin = 0.09; 
 window.medium = 0.15;
 window.thick = 0.3;
 //var thin = 0.09, medium = 0.15, thick = 0.3;
