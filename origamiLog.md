@@ -78,6 +78,9 @@ Are all this overflow be cropped out
 
 ## Tue 21 Jul 2020 01:43:16 PM +08
 
+
+**start:** Tue 21 Jul 2020 01:43:16 PM +08
+**end:** Tue 21 Jul 2020 03:37:43 PM +08
 Previous session:
 -	Tried to make Maze.js run locally, but ran into a directory error. 
 Today’s Goal:
