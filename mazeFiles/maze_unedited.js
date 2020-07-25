@@ -19,7 +19,6 @@
 
 dojo.require ('dojox.gfx');
 dojo.require ('dojox.gfx3d');
-dojo.require('dojox.gfx.utils');
 //dojo.require("dijit.form.NumberTextBox");
 //dojo.require("dojo.parser");
 //dojo.addOnLoad (function () { dojo.parser.parse (); });
@@ -45,23 +44,21 @@ dojo.addOnLoad (function () { // present loads upon rendering the webpage
       'render the rotating 3D view of the maze.  If you want that feature, ' +
       'try another browser.</i>';
     dojo.byId('warnings').style.display = 'block';
-    d3on = false; // this d3 isn't related to the d3 js library, it's just a variable name that they have chosen
+    d3on = false;
   }
 
-  // surfaces refer to the 3 diff "viewports" we see, they are called: maze, cp and front3
-  maze = dojox.gfx.createSurface (dojo.byId ('maze'), 600, 500);
-  cp = dojox.gfx.createSurface (dojo.byId ('cp'), 500, 500);
+  // surfaces refer to the 3 diff "viewports" we see
+  maze = dojox.gfx.createSurface (dojo.byId ('maze'), 1000, 500);
+  cp = dojox.gfx.createSurface (dojo.byId ('cp'), 1000, 500);
 
-  if (d3on) { 
-    console.log("[addOnLoad function, d3on == true]")
-    d3 = dojox.gfx.createSurface (dojo.byId ('d3'), 500, 500);
-    d3v = d3.createViewport (); // d3v is the variable name for the viewport that shows the 3D output 
+  if (d3on) { // ???
+    d3 = dojox.gfx.createSurface (dojo.byId ('d3'), 1000, 500);
+    d3v = d3.createViewport ();
     d3v.setLights([
       {direction: {x: 0, y: 0, z: -10}, color: "white"}
-    ], {color: "green", intensity: 2}, "white");
+    ], {color: "white", intensity: 2}, "white");
   }
-  
-  front3 = dojox.gfx.createSurface (dojo.byId ('front3'), 500, 500);
+  front3 = dojox.gfx.createSurface (dojo.byId ('front3'), 1000, 500);
 
   update_nx_ny ();
 
@@ -184,7 +181,6 @@ function update_nx_ny (no_update, shiftX, shiftY) {
   ]);
 
   var front3dims = front3.getDimensions ();
-  // console.log("front3dims: " + front3dims)
   // xxx hack for Silverlight
   front3dims.width = 400; front3dims.height = 300;
   var front3margin = front3off + front3eps + thick;
@@ -202,7 +198,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
   update_cpscale ();
 
   // Draw underlying grid.
-  var stroke = {color: "blue", width: thin, cap: 'round'};
+  var stroke = {color: "gray", width: thin, cap: 'round'};
   for (var x = 0; x <= nx; x++) {
     mazeg.createLine ({x1: x, x2: x, y1: 0, y2: ny}).setStroke (stroke);
   }
@@ -222,8 +218,8 @@ function update_nx_ny (no_update, shiftX, shiftY) {
       for (var y = 0; y < ny; y++) {
         d3g.createPolygon ([{x: x, y: y, z: 0}, {x: x+1, y: y, z: 0},
                             {x: x+1, y: y+1, z: 0}, {x: x, y: y+1, z: 0}])
-         .setFill ({color: "black", type: "constant", finish: "glossy"})
-         .setStroke ("green");
+         .setFill ({color: "#c0c0c0", type: "constant", finish: "glossy"})
+         .setStroke ("blue");
       }
     }
     d3u = d3v.createScene ();
@@ -257,7 +253,6 @@ function update_cpscale () {
     dojox.gfx.matrix.scale (cpscale / gadget, cpscale / gadget),
     dojox.gfx.matrix.translate (hg, hg)
   ]);
-  console.log("[update_cpscale()]")
 }
 
 function d3view (no_render) {
@@ -271,14 +266,13 @@ function d3view (no_render) {
     dojox.gfx3d.matrix.scale (d3scale),
     dojox.gfx3d.matrix.cameraRotateXg (d3xang),
     dojox.gfx3d.matrix.cameraRotateZg (d3yang),
-    dojox.gfx3d.matrix.translate (-nx/2,-ny/2, 0)
+    dojox.gfx3d.matrix.translate (-nx/2,-ny/2, -ny/2)
   ]);
   if (!no_render)
     d3render ();
 }
 
 function d3render () {
-  console.log("[d3render()]")
   d3v.clear ();
   d3v.render ();
 }
@@ -287,7 +281,6 @@ var version = 0;
 
 function update_maze () {
   version++;
-  console.log("[update_maze()], version: " + version)
   var this_version = version;
 
   // Redraw input grid.
@@ -336,7 +329,6 @@ function update_maze () {
   front3l.clear ();
   var off = front3off / channel;
   function draw_front3 (y) {
-    console.log("draw_front3()")
     if (version != this_version) return;
     // Horizontal segments, back (upper) face
     for (var x = 0; x < nx; x++)
@@ -391,7 +383,7 @@ function update_maze () {
             {x: x+extend2*front3eps+1+off, y: y+front3eps-off},
             {x: x-extend1*front3eps+off, y: y+front3eps-off},
             {x: x-extend1*front3eps, y: y+front3eps}])
-          .setFill ("pink")
+          .setFill ("yellow")
           .setStroke ({color: "black", width: thin, join: 'round', cap: 'round'});
       }
     if (y < ny) {
@@ -482,8 +474,6 @@ function update_maze () {
   cpg.createRect ({x: -hg, y: -hg,
                    width: gadget*(nx+1), height: gadget*(ny+1)})
     .setStroke ({color: "black", width: thick, join: 'round'});
-    
-  // defining valley and mountain colours:
   var valley90 = {color: "#3030f0", width: thin, cap: 'round'};
   var valley180 = {color: "#0000f0", width: medium, cap: 'round'};
   var mountain90 = {color: "#ff8080", width: thin, cap: 'round'};
@@ -491,7 +481,6 @@ function update_maze () {
   var lock0 = dojo.byId ('lock0').checked;
   //for (var x = 0; x <= nx; x++) {
   function draw_cp (x) {
-    console.log("[draw_cp()]")
     if (version != this_version) return;
     for (var y = 0; y <= ny; y++) {
       var count = 0;
@@ -499,7 +488,7 @@ function update_maze () {
       if (edge_left[x][y]) count++;
       if (x > 0 && edge_top[x-1][y]) count++;
       if (y > 0 && edge_left[x][y-1]) count++;
-      var g = cpg.createGroup (); 
+      var g = cpg.createGroup ();
       g.setTransform ([
         dojox.gfx.matrix.translate (gadget * x, gadget * y)
       ]);
@@ -714,24 +703,9 @@ function update_maze () {
   }
   //if (!d3on)
   setTimeout (function () { draw_cp (0) }, 0);
-  console.log("[update_maze/draw_cp]: finished drawing! cp is" + typeof cp)
-  try {
-    dojox.gfx.utils.toJson(cpg).then(
-      function(svg) {
-        alert(svg);
-      }, 
-      function(error) {
-        alert("error occurred when trying to extract svg: " + error)
-      }
-    );
-  } catch {
-    console.log("fuck i failed.")
-  }
-
 }
 
 function change_nx (delta, shift) {
-  console.log("[change_nx]")
   nx += delta;
   if (nx < 1) nx = 1;
   update_nx_ny (false, shift ? delta : 0, 0);
@@ -739,7 +713,6 @@ function change_nx (delta, shift) {
 }
 
 function change_ny (delta, shift) {
-  console.log("[change_ny]")
   ny += delta;
   if (ny < 1) ny = 1;
   update_nx_ny (false, 0, shift ? delta : 0);
@@ -747,8 +720,6 @@ function change_ny (delta, shift) {
 }
 
 function clear_maze (no_update) {
-  console.log("[clear_maze()]")
-
   for (var x = 0; x <= nx; x++) {
     for (var y = 0; y <= ny; y++) {
       edge_top[x][y] = NOTHING;
@@ -763,7 +734,6 @@ function clear_maze (no_update) {
 
 function random_maze () {
   // Grow a maze via randomized DFS:
-  console.log("[random_maze()]")
   var parent = {};
   var frontier = [[null, [0,0]]];
   while (frontier.length > 0) {
@@ -788,7 +758,7 @@ function random_maze () {
     }
   }
 
-  // Convert to edge representation: draws edge_left first then edge_top via two for loops: 
+  // Convert to edge representation.
   for (var y = 0; y < ny; y++) {
     edge_left[0][y] = WALL;
     for (var x = 1; x < nx; x++) {
@@ -816,8 +786,7 @@ function random_maze () {
 
 var HLINE = '-', NOHLINE = 'x', VLINE = '|', NOVLINE = 'x', LINESEP = '!';
 
-function flatten_maze () { 
-  console.log("[flatten_maze()]")
+function flatten_maze () {
   var lines = [];
   for (var y = 0; y <= ny; y++) {
     var horiz = '';
@@ -837,8 +806,6 @@ function flatten_maze () {
 }
 
 function deflatten_maze (flat) {
-  console.log("[deflatten_maze()]")
-
   var lines = flat.split (LINESEP);
   nx = lines[0].length;
   ny = (lines.length - 1) / 2;
@@ -864,7 +831,6 @@ function link_to_self () {
   var q = {};
   if (maze_is_text) {
     q.text = dojo.byId ('text').value;
-    console.log("[link_to_self()]: maze_is_text == true and value of that text: " + q.text)
   } else {
     q.maze = flatten_maze ();
   }
@@ -962,7 +928,7 @@ function text_to_maze () {
 
   text = text.split ('\n');
   text = dojo.map (text, function (line) {
-    return dojo.map (line, font_lookup); // does a font lookup for chars, line by line (ref to input line, not line on the grid)
+    return dojo.map (line, font_lookup);
   });
 
   ny = 3*text.length-1;
@@ -998,7 +964,6 @@ function text_to_maze () {
 }
 
 function toggle_edge (event) {
-  console.log("[toggle_edge]")
   var pos = dojo.position (dojo.byId ('maze'), true);
   var x = event.pageX - pos.x, y = event.pageY - pos.y;
   x = (x - xoff) / scale;
@@ -1075,10 +1040,7 @@ function not_out (event) {
   am_out = false;
 }
 
-
-// following are function that handle logic of the onscreen buttons for d3: from resets to viewport movements:
 function d3reset () {
-  console.log("[d3reset]")
   d3xang = -45;
   d3yang = 45;
   d3view ();
@@ -1091,10 +1053,8 @@ function d3change (dx, dy) {
 }
 
 function set_channel (newchannel, fromtext) {
-  if (typeof newchannel == 'string') {
-    console.log("[set_channel]: newchannel is of type string")
+  if (typeof newchannel == 'string')
     newchannel = parseFloat (newchannel);
-  }
   if (isNaN (newchannel) || newchannel < 1)
     return;
   if (oldchannel == newchannel)
@@ -1119,7 +1079,7 @@ function front_or_d3 () {
     dojo.byId ('front3').style.display = 'block';
     dojo.byId ('d3').style.display = 'none';
   } else {
-    dojo.byId ('front3').style.display = 'block';
+    dojo.byId ('front3').style.display = 'none';
     dojo.byId ('d3').style.display = 'block';
   }
   link_to_self ();
