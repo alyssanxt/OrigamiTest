@@ -161,6 +161,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
     for (var y = 0; y <= ny; y++) {
       if (old_top != null && x-shiftX >= 0 && x-shiftX < old_top.length && y-shiftY < old_top[x-shiftX].length) {
         edge_top[x][y] = old_top[x-shiftX][y-shiftY];
+        // edge_top[x][y] = old_top[x-shiftX+111][y-shiftY];
         edge_left[x][y] = old_left[x-shiftX][y-shiftY];
       } else {
         edge_top[x][y] = NOTHING;
@@ -170,15 +171,16 @@ function update_nx_ny (no_update, shiftX, shiftY) {
   }
 
   // Precompute graphical scale.
+  // ONLY CHANGES BLACK AND WHITE GRID (Grid for the maze surface)
   var dims = maze.getDimensions ();
   // xxx hack for Silverlight
   dims.width = 500; dims.height = 400;
-  scale = Math.min (dims.width / (nx+margin), dims.height / (ny+margin));
-  xoff = (dims.width - scale * nx) / 2;
+  scale = Math.min (dims.width / (nx+margin), dims.height / (ny+margin)); // SIZE OF THE BLACK + WHITE GRID
+  xoff = (dims.width - scale * nx) / 2; // X and Y axis position of the BLACK + WHITE grid
   yoff = (dims.height - scale * ny) / 2;
   maze.clear ();
   mazeg = maze.createGroup ();
-  mazeg.setTransform ([
+  mazeg.setTransform ([ // REFERS TO ONLY BLACK + WHITE GRID
     dojox.gfx.matrix.translate (xoff, yoff),
     dojox.gfx.matrix.scale (scale, scale)
   ]);
@@ -201,7 +203,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
 
   update_cpscale ();
 
-  // Draw underlying grid.
+  // Draw underlying grid. aka BLACK + RIGHT GRID 
   var stroke = {color: "blue", width: thin, cap: 'round'};
   for (var x = 0; x <= nx; x++) {
     mazeg.createLine ({x1: x, x2: x, y1: 0, y2: ny}).setStroke (stroke);
@@ -260,6 +262,7 @@ function update_cpscale () {
   console.log("[update_cpscale()]")
 }
 
+// USED to execute the thing
 function d3view (no_render) {
   var d3dims = d3.getDimensions ();
   // xxx hack for Silverlight
@@ -290,7 +293,7 @@ function update_maze () {
   console.log("[update_maze()], version: " + version)
   var this_version = version;
 
-  // Redraw input grid.
+  // Redraw input grid.(the lines)
   mazel.clear ();
   var stroke = {color: "black", width: thick, cap: 'round'};
   for (var x = 0; x <= nx; x++) {
@@ -957,6 +960,7 @@ var oldText;
 
 function text_to_maze () {
   var text = dojo.byId ('text').value;
+  // console.log("oldtext is ", oldText) 
   if (text == oldText) return;
   oldText = text;
 
@@ -979,6 +983,7 @@ function text_to_maze () {
   dojo.forEach (text, function (line, y) {
     y *= 3;
     var x = 0;
+    // var x = 100;
     dojo.forEach (line, function (char) {
       for (var dx = 0; dx < char[0].length; dx++) {
         edge_left[x+dx][y] = char[0][dx];

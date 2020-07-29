@@ -1,4 +1,50 @@
-# OrigamiSimulator
+
+---- 
+**Table of Contents**
+- [Motivations and Goals](#motivations-and-goals)
+- [Set-up Instructions](#set-up-instructions)
+    - [1. Installing Dependencies](#1-installing-dependencies)
+    - [2. Running the Files](#2-running-the-files)
+- [OrigamiSimulator WriteUp from original repo](#origamisimulator-writeup-from-original-repo)
+----
+# Motivations and Goals
+
+This repo aims to value-add to Amanda Ghassaei's Origami Simulator and Eric Demaine's Maze Folder by putting it in a single pipeline.
+
+
+# Set-up Instructions
+
+This section describes how to get Amanda Ghassaei's Origami Simulator as well as Eric Demaine's Maze Folder running locally *after* cloning this repository into your local machine. Instructions are OS-agnostic.
+
+### 1. Installing Dependencies
+
+We have already extracted the code for MazeFolder and it's in [the ./mazeFiles subdir](./mazeFiles/). 
+The scripts within `maze.js` rely on the Dojo Framework, specifically the gfx module to handle the graphics aspects. 
+
+Download the Dojo Toolkit's [release package](https://dojotoolkit.org/download/). If running on a Unix env, select the tar gz file. 
+The Download location should be in the same Projects directory as the dir you're cloning this repository in: 
+
+    
+    ├── project
+    │   ├── dojo-release-1.16.3
+    │   ├── OrigamiTest
+    │   └── OrigamiTest2
+
+The reason for this is that relative urls are used in [maze.js](mazeFiles/maze.js), and it will come in handy if truly working offline (untested for now).
+
+
+### 2. Running the Files
+
+Amanda is [here](./index.html), pls open it up in your browser of choice. 
+* pls note that the file paths are not correct hence it's not possible to load svg's simply by clicking the dropdown tabs in Amanda, **instead**, pls use the import feature and select the svg files as in the [./assets folder](./assets/). Specifically, the font related assets are in [./assets/Squaremaze](./assets/Squaremaze/). We won't be fixing this anytime soon because it's trivial. #todo 
+
+MazeFolder's html file is [here](./mazeFiles/fakeIndex.html).
+
+
+
+
+
+# OrigamiSimulator WriteUp from [original repo](https://github.com/amandaghassaei/OrigamiSimulator)
 
 Live demo at <a href="https://origamisimulator.org/">origamisimulator.org</a><br/>
 
@@ -26,7 +72,7 @@ The solver extends work from the following sources:
 <ul>
     <li>Slide the <b>Fold Percent</b> slider to control the degree of folding of the pattern (100% is fully folded, 0% is unfolded,
         and -100% is fully folded with the opposite mountain/valley assignments).</li>
-    <li>Drag to rotate the model, scroll to zoom.</li>
+    <li>Drag to rotate the model, text_to to zoom.</li>
     <li>Import other patterns under the <b>Examples</b> menu.</li>
     <li>Upload your own crease patterns in SVG or <a href="https://github.com/edemaine/fold" target="_blank">FOLD</a> formats, following the instructions under <b>File > File Import Tips</b>.</li>
     <li>Export FOLD files or 3D models ( STL or OBJ ) of the folded state of your design ( <b>File > Save Simulation as...</b> ).</li>
