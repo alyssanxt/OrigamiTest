@@ -26,6 +26,7 @@
 dojo.require ('dojox.gfx');
 dojo.require ('dojox.gfx3d');
 dojo.require('dojox.gfx.utils');
+dojo.require("dijit.form.Button");
 //dojo.require("dijit.form.NumberTextBox");
 //dojo.require("dojo.parser");
 //dojo.addOnLoad (function () { dojo.parser.parse (); });
@@ -36,6 +37,7 @@ var maze_is_text = false; // boolean for various helper functions down the road
 var maze, mazeg, mazel, cp, cpg, d3, d3v, d3u, d3on = true, front3, front3g, fron3l;
 
 dojo.addOnLoad (function () { // present loads upon rendering the webpage
+  console.log("[addOnLoad] : initialising, choosing browser-based defaults and creating surfaces")
   if (dojox.gfx.renderer == "vml") {
     dojo.byId('warnings').innerHTML = '<i>You are using Internet Explorer, ' +
       'which currently will render this web application rather poorly under ' +
@@ -127,6 +129,7 @@ dojo.addOnLoad (function () { // present loads upon rendering the webpage
 var scale, xoff, yoff;
 
 function coord (x, y) {
+  console.log("[coord()]: returns tuple for coords with scale factor and offset translation")
   return [x * scale + xoff, y * scale + yoff];
 }
 
@@ -145,6 +148,7 @@ window.front3eps = 0.1;
 window.front3off = 0.5;
 
 function update_nx_ny (no_update, shiftX, shiftY) {
+  console.log("[update_nx_ny()]")
   // Prevent extra updates.
   if (oldnx == nx && oldny == ny) return;
   oldnx = nx;
@@ -158,6 +162,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
   dojo.byId ('ny').innerHTML = ny;
 
   // Create maze array.
+  console.log("[update_nx_ny]: creating maze array...")
   var old_top = edge_top, old_left = edge_left;
   edge_top = [];
   edge_left = [];
@@ -211,6 +216,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
 
   // Draw underlying grid. aka BLACK + RIGHT GRID 
   var stroke = {color: "blue", width: thin, cap: 'round'};
+  console.log("[update_nx_ny()]: creating lines within a group next...")
   for (var x = 0; x <= nx; x++) {
     mazeg.createLine ({x1: x, x2: x, y1: 0, y2: ny}).setStroke (stroke);
   }
@@ -221,6 +227,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
 
   // 3D
   if (d3on) {
+    console.log("[update_nx_ny()]: d3 is on, creating the d3 scene, drawing polygons and all")
     d3view (true);
     d3v.clear ();
     d3v.objects = [];
@@ -250,6 +257,7 @@ function update_nx_ny (no_update, shiftX, shiftY) {
 }
 
 function update_cpscale () {
+  console.log("[update_cpscale()]: routing updating of cp scale")
   var cpdims = cp.getDimensions ();
   var hg = 2 + channel, gadget = 2 * hg;
   // xxx hack for Silverlight
@@ -265,11 +273,11 @@ function update_cpscale () {
     dojox.gfx.matrix.scale (cpscale / gadget, cpscale / gadget),
     dojox.gfx.matrix.translate (hg, hg)
   ]);
-  console.log("[update_cpscale()]")
 }
 
 // USED to execute the thing
 function d3view (no_render) {
+  console.log("[d3view()]: sets up the camera for the d3 view ")
   var d3dims = d3.getDimensions ();
   // xxx hack for Silverlight
   d3dims.width = 400; d3dims.height = 300;
@@ -279,7 +287,7 @@ function d3view (no_render) {
     dojox.gfx3d.matrix.translate (d3dims.width/2, d3dims.height/2, 0),
     dojox.gfx3d.matrix.scale (d3scale),
     dojox.gfx3d.matrix.cameraRotateXg (d3xang),
-    dojox.gfx3d.matrix.cameraRotateZg (d3yang),
+    dojox.gfx3d.matrix.cameraRotateZg (d3yang), //Angle of the yellow pane
     dojox.gfx3d.matrix.translate (-nx/2,-ny/2, 0)
   ]);
   if (!no_render)
@@ -294,7 +302,7 @@ function d3render () {
 
 var version = 0;
 
-function update_maze () {
+function update_maze () { 
   version++;
   console.log("[update_maze()], version: " + version)
   var this_version = version;
@@ -717,27 +725,79 @@ function update_maze () {
           }
         }
       }
+      console.log("[update_maze/draw_cp]: finished drawing! cp is" + typeof cp)
+      try {
+        var surface = cp; // set diff surfaces here!
+        console.log("[update_maze()]: trying to serialize the right surface")
+        console.log("[update_maze()]: this is the surface: ", )
+        console.log("\t\t trying toSVG...")
+        var mySVG = serialize(surface)
+        console.log("[update_maze() / draw_cp():]try block: heyyy i got me some svgs")
+        console.log(mySVG)
+        // console.log("\t\t trying toJson")
+        // serialize_toSVG(surface)
+      } catch {
+        console.log("fuck i failed.")
+      }
     }
     if (x < nx)
       setTimeout (function () { draw_cp (x+1) }, 0);
   }
   //if (!d3on)
   setTimeout (function () { draw_cp (0) }, 0);
-  console.log("[update_maze/draw_cp]: finished drawing! cp is" + typeof cp)
-  try {
-    dojox.gfx.utils.toJson(cpg).then(
-      function(svg) {
-        alert(svg);
-      }, 
-      function(error) {
-        alert("error occurred when trying to extract svg: " + error)
-      }
-    );
-  } catch {
-    console.log("fuck i failed.")
-  }
+  
 
 }
+
+// serialize helper functions:
+function serialize(surface){
+  saveFile();
+  dojox.gfx.utils.toSvg(surface).then(
+      function(surface){
+        console.log("[serialize()]: currently trying to create svg")
+        console.log(surface)
+        dojo.byId("svg").innerHTML = surface;
+      },
+      function(err){
+        console.log("shite")
+         alert(err);
+      }
+  );
+}
+
+
+// FILE IO: storing SVG object into file:
+// function SaveDatFileBro() {
+//   var filesystem = FileSystemEntry.filesystem;
+//   console.log("[SaveDatFileBro()]: this is my filesystem object",filesystem)
+//   // localstorage.root.getDirectory("demo", {create: true});
+// }
+
+
+function saveFile() {
+
+  try {
+  var requestedBytes = 1024*1024*10; // 10MB
+  navigator.webkitPersistentStorage.requestQuota (
+      requestedBytes, function(grantedBytes) {  
+          var fs = window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, errorHandler);
+          console.log("[saveFile()]my fs obj is this", fs)
+
+      }, function(e) { console.log('Error', e); }
+  );
+    }
+  catch {}
+
+}
+
+
+
+
+
+
+
+
+
 
 function change_nx (delta, shift) {
   console.log("[change_nx]")
@@ -870,6 +930,7 @@ function deflatten_maze (flat) {
 }
 
 function link_to_self () {
+  console.log("[link_to_self]: provides a url, passing in the input string as a param, for sharing purposes")
   var q = {};
   if (maze_is_text) {
     q.text = dojo.byId ('text').value;
@@ -951,6 +1012,7 @@ var font = {
 };
 
 function font_lookup (x) {
+  console.log("[font_lookup()]")
   if (x in font) {
     return font[x];
   } else if (x.toLowerCase () in font) {
@@ -966,7 +1028,7 @@ var oldText;
 
 function text_to_maze () {
   var text = dojo.byId ('text').value;
-  // console.log("oldtext is ", oldText) 
+  console.log("[text_to_maze()]")
   if (text == oldText) return;
   oldText = text;
 
@@ -1010,7 +1072,7 @@ function text_to_maze () {
 
 function toggle_edge (event) {
   console.log("[toggle_edge]")
-  var pos = dojo.position (dojo.byId ('maze'), true);
+  var pos = dojo.position (dojo.byId ('maze'), true); //Returns is the width and height of the DOM node’s border-box
   var x = event.pageX - pos.x, y = event.pageY - pos.y;
   x = (x - xoff) / scale;
   y = (y - yoff) / scale;
@@ -1038,6 +1100,7 @@ function toggle_edge (event) {
 var d3x1, d3y1, d3xang1, d3yang1, d3conn = null;
 
 function d3down (event) {
+  console.log("[d3down()]")
   d3x1 = event.screenX;
   d3y1 = event.screenY;
   d3xang1 = d3xang;
@@ -1051,6 +1114,7 @@ function d3down (event) {
 }
 
 function d3move (event) {
+  console.log("[d3move()]")
   var dx = event.screenX - d3x1, dy = event.screenY - d3y1;
   d3xang = d3xang1 + dy;
   d3yang = d3yang1 + dx;
@@ -1059,6 +1123,7 @@ function d3move (event) {
 
 function d3out (event) {
   if (d3conn != null) {
+    console.log("[d3out()] : if d3conn != null")
     dojo.disconnect (d3conn[0]);
     dojo.disconnect (d3conn[1]);
     d3conn = null;
@@ -1066,6 +1131,7 @@ function d3out (event) {
 }
 
 function d3up (event) {
+  console.log("[d3up()]")
   d3move (event);
   d3out (event);
 }
@@ -1073,6 +1139,7 @@ function d3up (event) {
 var am_out;
 
 function maybe_out (event) {
+  console.log("[maybe_out()]")
   //if (event.target != surface.getEventSource ()) return;
   am_out = true;
   //maybe_outs.push (out);
@@ -1083,6 +1150,7 @@ function maybe_out (event) {
 }
 
 function not_out (event) {
+  console.log("[not_out]")
   am_out = false;
 }
 
@@ -1096,6 +1164,7 @@ function d3reset () {
 }
 
 function d3change (dx, dy) {
+  console.log("[d3change()]")
   d3xang += dy;
   d3yang += dx;
   d3view ();
@@ -1106,26 +1175,36 @@ function set_channel (newchannel, fromtext) {
     console.log("[set_channel]: newchannel is of type string")
     newchannel = parseFloat (newchannel);
   }
-  if (isNaN (newchannel) || newchannel < 1)
+  if (isNaN (newchannel) || newchannel < 1) {
+    console.log("[set_channel]: newchannel is null / less than 1")
     return;
-  if (oldchannel == newchannel)
+  }
+
+  if (oldchannel == newchannel) {
+  console.log("[set_channel]: old == new")
     return;
+  }
   channel = oldchannel = newchannel;
-  if (!fromtext)
+  if (!fromtext) {
+    console.log("[set_channel]: !fromtext")
     dojo.byId ('channel').value = channel;
+  }
   update_cpscale ();
   update_maze ();
 }
 
 function add_to_channel (delta) {
+  console.log("[add_to_channel()]")
   set_channel (channel + delta);
 }
 
 function check_channel () {
+  console.log("[check_channel()]")
   set_channel (dojo.byId ('channel').value, true);
 }
 
 function front_or_d3 () {
+  console.log("[front_or_d3()]")
   if (dojo.byId ('front').checked) {
     dojo.byId ('front3').style.display = 'block';
     dojo.byId ('d3').style.display = 'none';
