@@ -58,7 +58,7 @@ dojo.addOnLoad (function () { // present loads upon rendering the webpage
 
   // surfaces refer to the 3 diff "viewports" we see, they are called: maze, cp and front3
   maze = dojox.gfx.createSurface (dojo.byId ('maze'), 600, 500);
-  cp = dojox.gfx.createSurface (dojo.byId ('cp'), 500, 500);
+  cp = dojox.gfx.createSurface (dojo.byId ('cp'), 1000, 1000);
 
   if (d3on) { 
     console.log("[addOnLoad function, d3on == true]")
@@ -501,10 +501,24 @@ function update_maze () {
     .setStroke ({color: "black", width: thick, join: 'round'});
     
   // defining valley and mountain colours:
-  var valley90 = {color: "#3030f0", width: thin, cap: 'round'};
-  var valley180 = {color: "#0000f0", width: medium, cap: 'round'};
-  var mountain90 = {color: "#ff8080", width: thin, cap: 'round'};
-  var mountain180 = {color: "#ff6060", width: medium, cap: 'round'};
+  // var valley90 = {color: "#3030f0", width: thin, cap: 'round'};
+  // var valley180 = {color: "#0000f0", width: medium, cap: 'round'};
+  // var mountain90 = {color: "#ff8080", width: thin, cap: 'round'};
+  // var mountain180 = {color: "#ff6060", width: medium, cap: 'round'};
+
+
+  // //new colors (RGB)
+  // var valley90 = {color: "#0000ff", width: thin, cap: 'round'};
+  // var valley180 = {color: "#0000ff", width: medium, cap: 'round'};
+  // var mountain90 = {color: "#ff0000", width: thin, cap: 'round'};
+  // var mountain180 = {color: "#ff0000", width: medium, cap: 'round'};
+
+    //new colors with alpha value (RGB)
+    var valley90 = {color: "rgba(0, 0, 255,0.5)", width: thin, cap: 'round'}; //BLUE COLOR
+    var valley180 = {color: "rgba(0,0,255,1)", width: medium, cap: 'round'};
+    var mountain90 = {color: "rgba(255, 0, 0,0.5)", width: thin, cap: 'round'}; //RED COLOR
+    var mountain180 = {color: "rgba(255, 0, 0, 1)", width: medium, cap: 'round'};
+  
   var lock0 = dojo.byId ('lock0').checked;
   //for (var x = 0; x <= nx; x++) {
   function draw_cp (x) {
