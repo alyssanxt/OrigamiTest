@@ -6,7 +6,7 @@
  *     resolved
  *   - crop boundary to half way (?) to reduce complexity
  *   - drag to pan/zoom crease pattern
- *   - auto sizing of three UI widgets on screen (in particular for phone)
+ *   - auto sizing of three UI widgets on screen (in particular for ph﻿one)
  *     - try new dojo.window.getBox?
  *   - option of printing things other than crease pattern?
  *     (pagebreak_attempt.html didn't work...)
@@ -744,12 +744,11 @@ function update_maze () {
         var surface = cp; // set diff surfaces here!
         console.log("[update_maze()]: trying to serialize the right surface")
         console.log("[update_maze()]: this is the surface: ", )
+        
         console.log("\t\t trying toSVG...")
-        var mySVG = serialize(surface)
+        var mySVG = serialize(surface, "svg")
+        var myJSON = serialize(surface,"json")
         console.log("[update_maze() / draw_cp():]try block: heyyy i got me some svgs")
-        console.log(mySVG)
-        // console.log("\t\t trying toJson")
-        // serialize_toSVG(surface)
       } catch {
         console.log("fuck i failed.")
       }
@@ -764,9 +763,10 @@ function update_maze () {
 }
 
 // serialize helper functions:
-function serialize(surface){
-  saveFile();
-  dojox.gfx.utils.toSvg(surface).then(
+function serialize(surface, format){
+  if (format == "svg"){
+    console.log("\t\t\t serializing svg file")
+    dojox.gfx.utils.toSvg(surface).then(
       function(surface){
         console.log("[serialize()]: currently trying to create svg")
         console.log(surface)
@@ -775,9 +775,20 @@ function serialize(surface){
       function(err){
         console.log("shite")
          alert(err);
-      }
-  );
+      }); 
+  } else if (format == "json") {
+    var rawJsonOutput = dojox.gfx.utils.toJson(surface)
+    var prettyJson = dojo.toJson(dojo.fromJson(rawJsonOutput), true);
+    console.log("[serialize()]: this is the prettyPrinted json output: ", prettyJson)
+    dojo.byId("json").innerHTML = rawJsonOutput;
+  } else {
+    console.log("shite")
+  }
+
+
 }
+
+
 
 
 // FILE IO: storing SVG object into file:
@@ -788,21 +799,21 @@ function serialize(surface){
 // }
 
 
-function saveFile() {
+// function saveFile() {
+//    //trying to save in local storage DOESN'T WORK 
 
-  try {
-  var requestedBytes = 1024*1024*10; // 10MB
-  navigator.webkitPersistentStorage.requestQuota (
-      requestedBytes, function(grantedBytes) {  
-          var fs = window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, errorHandler);
-          console.log("[saveFile()]my fs obj is this", fs)
+//   try {
+//   var requestedBytes = 1024*1024*10; // 10MB
+//   navigator.webkitPersistentStorage.requestQuota (
+//       requestedBytes, function(grantedBytes) {  
+//           var fs = window.requestFileSystem(PERSISTENT, grantedBytes, onInitFs, errorHandler);
+//           console.log("[saveFile()]my fs obj is this", fs)
 
-      }, function(e) { console.log('Error', e); }
-  );
-    }
-  catch {}
-
-}
+//       }, function(e) { console.log('Error', e); }
+//   );
+//     }
+//   catch {}
+// }
 
 
 
