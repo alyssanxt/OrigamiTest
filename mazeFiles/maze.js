@@ -26,10 +26,13 @@
 dojo.require ('dojox.gfx');
 dojo.require ('dojox.gfx3d');
 dojo.require('dojox.gfx.utils');
-dojo.require("dijit.form.Button");
+dojo.require('dijit.form.Button');
+dojo.require('../fold');
 //dojo.require("dijit.form.NumberTextBox");
 //dojo.require("dojo.parser");
 //dojo.addOnLoad (function () { dojo.parser.parse (); });
+
+
 
 var nx = 6, ny = 5, oldnx, oldny; //DEFAULT SIZE OF THE GRIDS
 var channel = 1, oldchannel;
