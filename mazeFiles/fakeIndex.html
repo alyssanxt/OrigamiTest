@@ -6,6 +6,26 @@
   <HEAD>
     <meta charset="UTF-8">
     <TITLE>Maze Folder</TITLE>
+
+
+    <!-- <script src="https://edemaine.github.io/fold/dist/fold.js"></script> -->
+    <script  src="https://edemaine.github.io/fold/dist/fold.js"> 
+      const FOLD =  require('fold'); 
+      console.log("[fake index] :  trying to import ")
+      var data = "mazeFiles\extraction\bad_bad.json"
+      var fromFormat = "json"
+      var toFormat = "fold"
+      try{
+        FOLD.convert.convertFromTo(data, fromFormat, toFormat)
+      console.log("hey alyssa")
+      }catch{
+        console.log("doesn't work")
+      }
+
+      </script> 
+
+
+
     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.14.1/dojo/dojo.js"></script>
     <SCRIPT TYPE="text/javascript" src="./dojo.js"></SCRIPT>
        <!-- djConfig="gfxRenderer:'svg,silverlight,canvas,vml'" -->

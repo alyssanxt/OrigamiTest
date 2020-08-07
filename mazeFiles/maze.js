@@ -18,21 +18,30 @@
  */
 
 
-
-// hello alyssa, this is I 
-// hello i  
-
-
 dojo.require ('dojox.gfx');
 dojo.require ('dojox.gfx3d');
 dojo.require('dojox.gfx.utils');
 dojo.require('dijit.form.Button');
-dojo.require('../fold');
+// import fold from './fold.js';
+//FOLD = require('https://edemaine.github.io/fold/dist/fold.js') // check import statement
+// const FOLD = require('./fold.js');
+// var FOLD = import('fold')
+
+
+// var inFilename = "C:\Users\alyss\Desktop\Project Ren\OrigamiTest\mazeFiles\sqtwistED.fold";  //FOLD TUPE
+// var outFilename = "C:\Users\alyss\Desktop\Project Ren\OrigamiTest\mazeFiles\alyssa.fold"; 
+// try{
+//   // FOLD.file.fileToFile(inFilename, outFilename); 
+//   FOLD.convert.edges_vertices_to_vertices_vertices_unsorted(inFilename)
+//   console.log("[look here]: FOLD WORKS :D")
+// } catch{
+//   console.log("[look here]: FOLD sucks :(")
+// }
+
+
 //dojo.require("dijit.form.NumberTextBox");
 //dojo.require("dojo.parser");
 //dojo.addOnLoad (function () { dojo.parser.parse (); });
-
-
 
 var nx = 6, ny = 5, oldnx, oldny; //DEFAULT SIZE OF THE GRIDS
 var channel = 1, oldchannel;
