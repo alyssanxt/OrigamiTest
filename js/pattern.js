@@ -1,3 +1,13 @@
+
+// ctrf =-f to search for:
+// 1) added comments 
+// #AR: 
+// 2) questions: 
+    // QQ
+// 3) wtf : 
+    // #wtf?
+
+
 /**
  * Created by amandaghassaei on 2/25/17.
  */
@@ -133,6 +143,10 @@ function initPattern(globals){
         return stroke.toLowerCase();
     }
 
+    // =============  #ARCommentedThis  ======================
+    // this is a helper that reads the colour for a particular node and checks if it's one of the
+    // predetermined colours as indicated by AMANDA. Anything that fails this filter is pushed into an arr called badColors
+    // nb: rgba format is accepted as well, probably just ignores the alpha param and checks if correct colour
     function typeForStroke(stroke){
         if (stroke == "#000000" || stroke == "#000" || stroke == "black" || stroke == "rgb(0,0,0)") return "border";
         if (stroke == "#ff0000" || stroke == "#f00" || stroke == "red" || stroke == "rgb(255,0,0)") return "mountain";
@@ -352,34 +366,39 @@ function initPattern(globals){
         }
     }
 
-    function loadSVG(url){
+    // #AR: loadSVG(url) ==> PROBABLY when we click on "examples" and it loads the svg
+    function loadSVG(url){ //url ==> where our svg file is at
         SVGloader.load(url, function(svg){
 
-            var _$svg = $(svg);
+            var _$svg = $(svg); // root node, all the children are defined within this
             // Add SVG to page dom to reveal rendered styles (including CSS).
             $(svg).appendTo('body');
 
             clearAll();
 
             //warn of groups
-            // var $groups = _$svg.children("g");
-            // if ($groups.length>0){
-            //     globals.warn("Grouped elements found in SVG, these are currently ignored by the app.  " +
-            //         "Please ungroup all elements before importing.");
-            // }
+            var $groups = _$svg.children("g"); // returns array of all child nodes with have the tag "g"
+            if ($groups.length>0){
+                globals.warn("Grouped elements found in SVG, these are currently ignored by the app.  " +
+                    "Please ungroup all elements before importing.");
+            }
 
+            // we get arrays of all the desired node types by doing "lookup" on the entire tree:
             //format all appropriate svg elements
             var $paths = _$svg.find("path");
             var $lines = _$svg.find("line");
             var $rects = _$svg.find("rect");
             var $polygons = _$svg.find("polygon");
             var $polylines = _$svg.find("polyline");
+
+            // #wtf? 
             $paths.css({fill:"none", 'stroke-dasharray':"none"});
             $lines.css({fill:"none", 'stroke-dasharray':"none"});
             $rects.css({fill:"none", 'stroke-dasharray':"none"});
             $polygons.css({fill:"none", 'stroke-dasharray':"none"});
             $polylines.css({fill:"none", 'stroke-dasharray':"none"});
 
+            // 
             findType(verticesRaw, bordersRaw, borderFilter, $paths, $lines, $rects, $polygons, $polylines);
             findType(verticesRaw, mountainsRaw, mountainFilter, $paths, $lines, $rects, $polygons, $polylines);
             findType(verticesRaw, valleysRaw, valleyFilter, $paths, $lines, $rects, $polygons, $polylines);
@@ -405,15 +424,18 @@ function initPattern(globals){
             var success = parseSVG(verticesRaw, bordersRaw, mountainsRaw, valleysRaw, cutsRaw, triangulationsRaw, hingesRaw);
             if (!success) return;
 
-            //find max and min vertices
+            // #AR: find min and max to find out the size of the border
+            //find max and min vertices (triple value representing x, y , z)
             var max = new THREE.Vector3(-Infinity,-Infinity,-Infinity);
             var min = new THREE.Vector3(Infinity,Infinity,Infinity);
+            // #AR: for all the vertices currently in the rawFold arr, iterate thru them, 
+            // create a vertex by assigning x,y,z coords and do a comparison with the existing max and min vertices 
             for (var i=0;i<rawFold.vertices_coords.length;i++){
                 var vertex = new THREE.Vector3(rawFold.vertices_coords[i][0], rawFold.vertices_coords[i][1], rawFold.vertices_coords[i][2]);
                 max.max(vertex);
                 min.min(vertex);
             }
-            if (min.x === Infinity){
+            if (min.x === Infinity){ // #AR: if no change in min, means i couldn't iterate thru any vertices, so no geometry found
                 if (badColors.length == 0) globals.warn("no geometry found in file");
                 return;
             }
@@ -423,15 +445,17 @@ function initPattern(globals){
             if (max.z < scale) scale = max.z;
             if (scale == 0) return;
 
+            // #AR: just a predetermined strokewidth
             var strokeWidth = scale/300;
             border.multiplyScalar(scale);
             min.sub(border);
             max.add(border.multiplyScalar(2));
             var viewBoxTxt = min.x + " " + min.z + " " + max.x + " " + max.z;
 
+            // #AR: loads the imported svg by creating the right "structure" 
             var ns = 'http://www.w3.org/2000/svg';
             var svg = document.createElementNS(ns, 'svg');
-            svg.setAttribute('viewBox', viewBoxTxt);
+            svg.setAttribute('viewBox', viewBoxTxt); // #AR: the viewbox follows the dimensions of the input svg, it's "dynamic"
             for (var i=0;i<rawFold.edges_vertices.length;i++){
                 var line = document.createElementNS(ns, 'line');
                 var edge = rawFold.edges_vertices[i];
@@ -525,6 +549,7 @@ function initPattern(globals){
 
     function processFold(fold, returnCreaseParams){
 
+        // QQ: so fold initially isn't a json obj? it has to be stringified into json string and then parsed into json?
         rawFold = JSON.parse(JSON.stringify(fold));//save pre-triangulated for for save later
         //make 3d
         for (var i=0;i<rawFold.vertices_coords.length;i++){
@@ -780,7 +805,7 @@ function initPattern(globals){
     }
 
     function getFacesAndVerticesForEdges(fold){
-        var allCreaseParams = [];//face1Ind, vertInd, face2Ind, ver2Ind, edgeInd, angle
+        var allCreaseParams = [];// #AR: the structure of each element inside allCreaseParams, i.e. one creaseparams: face1Ind, vertInd, face2Ind, ver2Ind, edgeInd, angle
         var faces = fold.faces_vertices;
         for (var i=0;i<fold.edges_vertices.length;i++){
             var assignment = fold.edges_assignment[i];

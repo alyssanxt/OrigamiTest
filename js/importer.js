@@ -36,10 +36,11 @@ function initImporter(globals){
 
         $(e.target).val("");
 
-        if (extension == "svg") {
+        if (extension == "svg") { // #AR: if import extension is svg, extract params from blob, loadSVG from reader and read blob as a url
+            //#AR: reader.result: the "place" where imported file is "kept" in if loading is done successfully
             reader.onload = function () {
                 return function (e) {
-                    if (!reader.result) {
+                    if (!reader.result) { 
                         warnUnableToLoad();
                         return;
                     }
@@ -50,7 +51,7 @@ function initImporter(globals){
                         $('#doSVGImport').unbind("click");
                         globals.filename = name;
                         globals.extension = extension;
-                        globals.url = null;
+                        globals.url = null; // #AR: doesn't have a url because it's a fresh import
                         globals.pattern.loadSVG(reader.result);
                     });
                 }
@@ -69,6 +70,7 @@ function initImporter(globals){
 
                     try {
                         var fold = JSON.parse(reader.result);
+                        // #AR: following is a warning condition, with all the error situations
                         if (!fold || !fold.vertices_coords || !fold.edges_assignment || !fold.edges_vertices || !fold.faces_vertices){
                             globals.warn("Invalid FOLD file, must contain all of: <br/>" +
                                 "<br/>vertices_coords<br/>edges_vertices<br/>edges_assignment<br/>faces_vertices");
@@ -76,6 +78,7 @@ function initImporter(globals){
                         }
 
                         // spec 1.0 backwards compatibility
+                        //#AR: to handle the older versions of FOLD
                         if (fold.edges_foldAngles){
                             fold.edges_foldAngle = fold.edges_foldAngles;
                             delete fold.edges_foldAngles;
@@ -89,13 +92,20 @@ function initImporter(globals){
                             $('#importFoldModal').off('hidden.bs.modal');
                             if (globals.foldUseAngles) {//todo this should all go to pattern.js
                                 globals.setCreasePercent(1);
-                                var foldAngles = [];
+                                var foldAngles = []; // #AR: this arr holds the foldangles for each edge by looking at how the edges are labelled in the json key of "edge_assignment"
+
+                                // #AR: ========= HANDLE EDGES THAT ARE LABELLED AS FLAT FIRST =================
+
+
                                 for (var i=0;i<fold.edges_assignment.length;i++){
                                     var assignment = fold.edges_assignment[i];
-                                    if (assignment == "F") foldAngles.push(0);
-                                    else foldAngles.push(null);
+                                    if (assignment == "F") foldAngles.push(0); // #AR: if it's "Flat" then push 0 for foldAngles 
+                                    else foldAngles.push(null); 
                                 }
-                                fold.edges_foldAngle = foldAngles;
+                                fold.edges_foldAngle = foldAngles; // #AR:store the damn array as a separate param called edges_foldAngle
+
+
+                                // #AR: ========= HANDLE EDGES THAT ARE M , V or F =================
 
                                 var allCreaseParams = globals.pattern.setFoldData(fold, true);
                                 var j = 0;
@@ -103,7 +113,7 @@ function initImporter(globals){
                                 for (var i=0;i<fold.edges_assignment.length;i++){
                                     var assignment = fold.edges_assignment[i];
                                     if (assignment !== "M" && assignment !== "V" && assignment !== "F") continue;
-                                    var creaseParams = allCreaseParams[j];
+                                    var creaseParams = allCreaseParams[j]; // #AR: an array of crease params are held in allCreaseParams
                                     var face1 = faces[creaseParams[0]];
                                     var vec1 = makeVector(fold.vertices_coords[face1[1]]).sub(makeVector(fold.vertices_coords[face1[0]]));
                                     var vec2 = makeVector(fold.vertices_coords[face1[2]]).sub(makeVector(fold.vertices_coords[face1[0]]));
@@ -113,14 +123,20 @@ function initImporter(globals){
                                     vec2 = makeVector(fold.vertices_coords[face2[2]]).sub(makeVector(fold.vertices_coords[face2[0]]));
                                     var normal2 = (vec2.cross(vec1)).normalize();
                                     var angle = Math.abs(normal1.angleTo(normal2));
-                                    if (assignment == "M") angle *= -1;
+                                    if (assignment == "M") angle *= -1; // #AR: because angle is an abs value before this, so need to put back the damn negative sign for the mountain
                                     fold.edges_foldAngle[i] = angle * 180 / Math.PI;
                                     creaseParams[5] = angle;
                                     j++;
                                 }
-                                globals.model.buildModel(fold, allCreaseParams);
+                                globals.model.buildModel(fold, allCreaseParams); // #AR: builds the 3d object model (likely to be some behind the scenes obj) that is stored as an attribute in the globals object 
                                 return;
                             }
+
+
+                        // #AR: ========= HANDLE EDGES THAT ARE LABELLED AS mountains and valleys FIRST =================
+
+                            // #AR: finally handles mountains and vally's foldAngle. each element in the foldAngles is an angle in the range of -180 to 180 degrees 
+                            // #AR: this is probably a design decision... 
                             var foldAngles = [];
                             for (var i=0;i<fold.edges_assignment.length;i++){
                                 var assignment = fold.edges_assignment[i];
